@@ -1,0 +1,17 @@
+package br.com.gnovais;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Conexao {
+
+    private static final String URL = "jdbc:mysql://seulocal/seubancodedados";
+    private static final String USR = "seuusuario";
+    private static final String PSS = "suasenha";
+
+    public static Connection obterConexao() throws SQLException
+    {
+        return DriverManager.getConnection(URL, USR, PSS);
+    }
+}
