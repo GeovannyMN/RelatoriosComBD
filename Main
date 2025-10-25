@@ -1,0 +1,117 @@
+package br.com.gnovais;
+
+import java.io.Console;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+public class Main {
+
+    static Console console = System.console();
+    public static void main(String[] args) {
+        
+        int opcao;
+        do {
+            exibirMenu();
+            opcao = Integer.parseInt(console.readLine());
+            switch (opcao) {
+                case 0 -> salvarVenda();
+                case 1 -> buscarTodasVendas();
+                case 2 -> buscarVendaPorId();
+                case 3 -> atualizarVenda();
+                case 4 -> excluirVenda();
+                case 5 -> System.exit(0);
+                default -> System.out.println("Opção inválida!");
+            }
+        } while (opcao != 5);
+        
+    }
+
+    private static void exibirMenu() {
+        System.out.println("\n### Menu de Operações ###");
+        System.out.println("0. Salvar nova venda");
+        System.out.println("1. Buscar todos Vendas");
+        System.out.println("2. Buscar Venda por ID");
+        System.out.println("3. Atualizar Venda");
+        System.out.println("4. Excluir Venda");
+        System.out.println("5. Sair do programa");
+        System.out.print("Escolha uma opção: ");
+    }
+
+    private static void salvarVenda() {
+        System.out.println("\n### Criar Nova Venda ###");
+
+        System.out.println("\nValor:");
+        float valor = Float.parseFloat(console.readLine());
+
+        System.out.println("\nForma de pagamento:");
+        String formaDePagamento = console.readLine();
+
+        System.out.println("\nHorário:");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        Date data;
+        Timestamp hora = null;
+        try {
+            data = sdf.parse(console.readLine());
+            hora = new Timestamp(data.getTime());            
+        } catch (ParseException e) {
+            System.out.println("Não foi possível converter a hora corretamente!");
+        }
+
+        Venda venda = new Venda(valor, formaDePagamento, hora);
+
+        VendaDAO vendaDAO = new VendaDAO();
+
+        try{
+            vendaDAO.salvar(venda);
+            System.out.println("Venda salva corretamente!");
+        }catch(SQLException e)
+        {
+            
+        }
+    }
+
+    private static void buscarTodasVendas() {
+        System.out.println("\n### Buscar Todas As Vendas ###");  
+        
+        VendaDAO vendaDAO = new VendaDAO();
+
+        try {
+            List<Venda> vendasEncontradas = vendaDAO.buscarPorTodasVendas();
+
+            if (vendasEncontradas != null)
+            {
+                System.out.println("Lista de vendas!");
+                for (Venda venda : vendasEncontradas)
+                {
+                    System.out.print("Valor: " + venda.valor() + " ");
+                    System.out.print("Forma de Pagamento: " + venda.formaDePagamento() + " ");
+                    System.out.println("Horário: " + venda.hora() + "\n");
+                }
+            }else{
+                System.out.println("Não foi encontrada nenhuma venda!");
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("Erro ao ler todas as vendas!");
+        }
+    }
+
+    private static void buscarVendaPorId() {
+       System.out.println("\n### Buscar Venda Por ID ###");
+    }
+
+    private static void atualizarVenda() {
+       System.out.println("\n### Atualizar Venda ###");
+    }
+
+    private static void excluirVenda() {
+       System.out.println("\n### Excluir Venda ###");
+    }
+
+
+}
