@@ -1,0 +1,9 @@
+package br.com.gnovais;
+
+import java.sql.Timestamp;
+
+public record Venda(int id, float valor, String formaDePagamento, Timestamp hora) {
+    public Venda(float valor, String formaDePagamento, Timestamp hora){
+        this(-1, valor, formaDePagamento, hora);
+    }
+}
