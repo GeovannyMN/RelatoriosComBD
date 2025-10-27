@@ -3,7 +3,6 @@ package br.com.gnovais;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,15 +42,16 @@ public class VendaDAO {
                     while(rs.next()){
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                         Time horaTime = rs.getTime("hora");
+
+                        @SuppressWarnings("unused")
                         Date horaData;
                         try {
 
                             horaData = sdf.parse(horaTime.toString());
-                            Timestamp horaTimestamp = new Timestamp(horaData.getTime());
                             Venda venda = new Venda(rs.getInt("id"),
                             rs.getFloat("valor"),
                             rs.getString("formaDePagamento"), 
-                            horaTimestamp );
+                            horaTime);
 
                             vendas.add(venda);
                         } catch (ParseException e) {
@@ -64,5 +64,78 @@ public class VendaDAO {
         }
 
         return vendas;
+    }
+
+    public Venda buscarPorID(int id) throws SQLException{
+
+        var sql = "select * from minhasvendas.venda where id = ?";
+
+        Venda venda = null;
+
+        try (var conexao = Conexao.obterConexao();
+             var stmt = conexao.prepareStatement(sql)){
+
+                stmt.setInt(1, id);                
+
+                try(ResultSet rs = stmt.executeQuery()){
+                    while(rs.next()){
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                        Time horaTime = rs.getTime("hora");
+
+                        @SuppressWarnings("unused")
+                        Date horaData;
+                        try {
+
+                            horaData = sdf.parse(horaTime.toString());
+                            venda = new Venda(rs.getInt("id"),
+                            rs.getFloat("valor"),
+                            rs.getString("formaDePagamento"), 
+                            horaTime);
+
+                        } catch (ParseException e) {
+                            System.out.println("Não foi possível converter a hora corretamente!");
+                        }
+                    }
+                }            
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
+
+        return venda;
+    }
+
+    public void atualizar(Venda venda) throws SQLException{
+
+        var sql = "update venda set valor = ?, formadepagamento =?, hora = ? where id = ?";
+
+        try (var conexao = Conexao.obterConexao();
+             var stmt = conexao.prepareStatement(sql)){
+
+            stmt.setFloat(1, venda.valor());
+            stmt.setString(2, venda.formaDePagamento());
+            
+            Time horaConvertida = new Time(venda.hora().getTime());
+            stmt.setTime(3, horaConvertida);
+
+            stmt.setInt(4, venda.id());
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
+    }
+
+    public void excluir(int id) throws SQLException{
+        var sql = "delete from venda where id = ?";
+
+        try (var conexao = Conexao.obterConexao();
+        var stmt = conexao.prepareStatement(sql)){
+            stmt.setInt(1, id);
+            
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }    
+
     }
 }
