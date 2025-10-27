@@ -2,7 +2,7 @@ package br.com.gnovais;
 
 import java.io.Console;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +33,7 @@ public class Main {
     private static void exibirMenu() {
         System.out.println("\n### Menu de Operações ###");
         System.out.println("0. Salvar nova venda");
-        System.out.println("1. Buscar todos Vendas");
+        System.out.println("1. Buscar todas as Vendas");
         System.out.println("2. Buscar Venda por ID");
         System.out.println("3. Atualizar Venda");
         System.out.println("4. Excluir Venda");
@@ -54,25 +54,37 @@ public class Main {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         Date data;
-        Timestamp hora = null;
-        try {
-            data = sdf.parse(console.readLine());
-            hora = new Timestamp(data.getTime());            
-        } catch (ParseException e) {
-            System.out.println("Não foi possível converter a hora corretamente!");
-        }
+        Time horaTime;
 
-        Venda venda = new Venda(valor, formaDePagamento, hora);
+        Venda venda;
 
         VendaDAO vendaDAO = new VendaDAO();
 
-        try{
-            vendaDAO.salvar(venda);
-            System.out.println("Venda salva corretamente!");
-        }catch(SQLException e)
-        {
+        try {
+            data = sdf.parse(console.readLine());
+            horaTime = new java.sql.Time(data.getTime());     
             
+            venda = new Venda(valor, formaDePagamento, horaTime);
+
+            try{
+                vendaDAO.salvar(venda);
+                System.out.println("Venda salva corretamente!");
+            }catch(SQLException e)
+            {
+                System.out.println("Erro: Não foi possível salvar a venda");
+            }
+
+        } catch (ParseException e) {
+            System.out.println("Não foi possível converter a hora corretamente!");
         }
+    }
+
+    private static void imprimirVenda(Venda venda)
+    {
+        System.out.print("ID: " + venda.id() + " ");
+        System.out.printf("Valor: R$%.2f ", venda.valor());
+        System.out.print("Forma de Pagamento: " + venda.formaDePagamento() + " ");
+        System.out.println("Horário: " + venda.hora() + "\n");
     }
 
     private static void buscarTodasVendas() {
@@ -88,29 +100,133 @@ public class Main {
                 System.out.println("Lista de vendas!");
                 for (Venda venda : vendasEncontradas)
                 {
-                    System.out.print("Valor: " + venda.valor() + " ");
-                    System.out.print("Forma de Pagamento: " + venda.formaDePagamento() + " ");
-                    System.out.println("Horário: " + venda.hora() + "\n");
+                    imprimirVenda(venda);
                 }
             }else{
                 System.out.println("Não foi encontrada nenhuma venda!");
             }
             
         } catch (SQLException e) {
-            System.out.println("Erro ao ler todas as vendas!");
+            System.out.println("Erro: Não foi possível encontrar todas as vendas!");
         }
     }
 
     private static void buscarVendaPorId() {
-       System.out.println("\n### Buscar Venda Por ID ###");
+        System.out.println("\n### Buscar Venda Por ID ###");
+
+        System.out.println("\nID:");
+        int id = Integer.parseInt(console.readLine());
+
+        System.out.println("ID informado:" + id);
+
+        VendaDAO vendaDAO = new VendaDAO();
+
+        @SuppressWarnings("unused")
+        Venda venda;
+
+        try {
+            venda = vendaDAO.buscarPorID(id);
+
+            if (venda != null){
+                System.out.println("Encontramos a seguinte venda através do ID informado:");
+                imprimirVenda(venda);
+            }else{
+                System.out.println("Não foi encontrada nenhuma venda com o ID informado!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro: Não foi possível encontrar a venda com o ID informado!");
+        }
     }
 
     private static void atualizarVenda() {
-       System.out.println("\n### Atualizar Venda ###");
+        System.out.println("\n### Atualizar Venda ###");
+
+        System.out.println("\nID do produto para atualizar:");
+        int id = Integer.parseInt(console.readLine());
+
+        System.out.println("ID informado:" + id);
+
+        VendaDAO vendaDAO = new VendaDAO();
+        
+        @SuppressWarnings("unused")
+        Venda vendaAntes;
+
+        @SuppressWarnings("unused")
+        Venda vendaDepois;
+
+        try {
+            vendaAntes = vendaDAO.buscarPorID(id);
+
+            if (vendaAntes != null){
+                
+                System.out.printf("\nO valor anterior era: R$%.2f\nNovo valor:\n", vendaAntes.valor());
+                float valor = Float.parseFloat(console.readLine());
+
+                System.out.println("\nO forma de pagamento anterior era:" + vendaAntes.formaDePagamento() + "\nNova forma de pagamento:");
+                String formaDePagamento = console.readLine();
+
+                System.out.println("\nO horário anterior era:" + vendaAntes.hora() + "\nNovo horário:");
+
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                Date data;
+                Time horaTime;
+
+                try {
+                    data = sdf.parse(console.readLine());
+                    horaTime = new java.sql.Time(data.getTime());     
+                
+                    vendaDepois = new Venda(vendaAntes.id(), valor, formaDePagamento, horaTime);
+
+                    try{
+                        vendaDAO.atualizar(vendaDepois);
+                        System.out.println("Venda atualizada corretamente!");
+                    }catch(SQLException e)
+                    {
+                        System.out.println("Erro: Não foi possível salvar a venda");
+                    }
+
+
+                }catch(ParseException e)
+                {
+                    System.out.println("Não foi possível atualizar o produto");
+                }
+
+            }else{
+                System.out.println("Não foi encontrada nenhuma venda com o ID informado!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro: Não foi possível atualizar a venda com o ID informado!");
+        }
     }
 
     private static void excluirVenda() {
-       System.out.println("\n### Excluir Venda ###");
+        System.out.println("\n### Excluir Venda ###");
+
+        System.out.println("\nID do produto para excluir:");
+        int id = Integer.parseInt(console.readLine());
+
+        System.out.println("ID informado:" + id);
+
+        VendaDAO vendaDAO = new VendaDAO();
+        
+        @SuppressWarnings("unused")
+        Venda vendaAExcluir;
+
+        try {
+            vendaAExcluir = vendaDAO.buscarPorID(id);
+
+            if (vendaAExcluir != null){
+                vendaDAO.excluir(vendaAExcluir.id());
+                System.out.println("Venda excluída corretamente!");
+            }else{
+                System.out.println("Não foi encontrada nenhuma venda com o ID informado!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro: Não foi possível excluir a venda com o ID informado!");
+        }
     }
 
 
