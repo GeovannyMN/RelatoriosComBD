@@ -18,12 +18,15 @@ public class Main {
             exibirMenu();
             opcao = Integer.parseInt(console.readLine());
             switch (opcao) {
-                case 0 -> salvarVenda();
-                case 1 -> buscarTodasVendas();
-                case 2 -> buscarVendaPorId();
-                case 3 -> atualizarVenda();
-                case 4 -> excluirVenda();
-                case 5 -> System.exit(0);
+                case 0 -> System.exit(0);
+                case 1 -> salvarVenda();
+                case 2 -> buscarTodasVendas();
+                case 3 -> buscarVendaPorId();
+                case 4 -> buscarVendaPorValor();
+                case 5 -> buscarVendaPorFormaDePagamento();
+                case 6 -> buscarVendaPorHorario();
+                case 7 -> atualizarVenda();
+                case 8 -> excluirVenda();
                 default -> System.out.println("Opção inválida!");
             }
         } while (opcao != 5);
@@ -32,12 +35,16 @@ public class Main {
 
     private static void exibirMenu() {
         System.out.println("\n### Menu de Operações ###");
-        System.out.println("0. Salvar nova venda");
-        System.out.println("1. Buscar todas as Vendas");
-        System.out.println("2. Buscar Venda por ID");
-        System.out.println("3. Atualizar Venda");
-        System.out.println("4. Excluir Venda");
-        System.out.println("5. Sair do programa");
+        System.out.println("0. Sair do programa");
+        System.out.println("1. Salvar nova venda");
+        System.out.println("2. Buscar todas as Vendas");
+        System.out.println("3. Buscar Venda por ID");
+        System.out.println("4. Buscar Venda por Valor");
+        System.out.println("5. Buscar Venda por Forma de Pagamento");
+        System.out.println("6. Buscar Venda por Horário");
+        System.out.println("7. Atualizar Venda");
+        System.out.println("8. Excluir Venda");
+       
         System.out.print("Escolha uma opção: ");
     }
 
@@ -137,6 +144,105 @@ public class Main {
         } catch (SQLException e) {
             System.out.println("Erro: Não foi possível encontrar a venda com o ID informado!");
         }
+    }
+
+    private static void buscarVendaPorValor() {
+        System.out.println("\n### Buscar Venda Por Valor ###");
+
+        System.out.println("\nValor:");
+        float valor = Float.parseFloat(console.readLine());
+
+        System.out.println("Valor informado: " + valor);
+
+        VendaDAO vendaDAO = new VendaDAO();
+
+        try {
+            List<Venda> vendasEncontradas = vendaDAO.buscarVendaPorValor(valor);
+
+            if (vendasEncontradas != null)
+            {
+                System.out.println("Lista de vendas!");
+                for (Venda venda : vendasEncontradas)
+                {
+                    imprimirVenda(venda);
+                }
+            }else{
+                System.out.println("Não foi encontrada nenhuma venda com o valor informado!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro: Não foi possível encontrar a venda com o valor informado!");
+        }
+    }
+
+    private static void buscarVendaPorFormaDePagamento() {
+        System.out.println("\n### Buscar Venda Por Forma De Pagamento ###");
+
+        System.out.println("\nForma De Pagamento:");
+        String formaDePagamento = console.readLine();
+
+        System.out.println("Forma de pagamento informada: " + formaDePagamento);
+
+        VendaDAO vendaDAO = new VendaDAO();
+
+        try {
+            List<Venda> vendasEncontradas = vendaDAO.buscarVendaPorFormaDePagamento(formaDePagamento);
+
+            if (vendasEncontradas != null)
+            {
+                System.out.println("Lista de vendas!");
+                for (Venda venda : vendasEncontradas)
+                {
+                    imprimirVenda(venda);
+                }
+            }else{
+                System.out.println("Não foi encontrada nenhuma venda com a forma de pagamento informada!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro: Não foi possível encontrar a venda com a forma de pagamento informada!");
+        }
+    }
+
+    private static void buscarVendaPorHorario() {
+        System.out.println("\n### Buscar Venda Por Horário ###");
+
+        System.out.println("\nHorário:");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        Date data;
+        Time horaTime;
+
+        VendaDAO vendaDAO = new VendaDAO();
+
+        try {
+            data = sdf.parse(console.readLine());
+            horaTime = new java.sql.Time(data.getTime()); 
+
+            System.out.println("Horário informado: " + horaTime);
+
+                try {
+                    List<Venda> vendasEncontradas = vendaDAO.buscarVendaPorHorario(horaTime);
+
+                    if (vendasEncontradas != null)
+                    {
+                        System.out.println("Lista de vendas!");
+                        for (Venda venda : vendasEncontradas)
+                        {
+                            imprimirVenda(venda);
+                        }
+                    }else{
+                        System.out.println("Não foi encontrada nenhuma venda com o horário informado!");
+                    }
+
+                } catch (SQLException e) {
+                    System.out.println("Erro: Não foi possível encontrar vendas com o horário informado!");
+                }
+        }catch (ParseException e)
+        {
+            System.out.println("Horário informado não é válido!");
+        }
+        
     }
 
     private static void atualizarVenda() {
