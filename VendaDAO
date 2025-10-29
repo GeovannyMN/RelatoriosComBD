@@ -55,7 +55,7 @@ public class VendaDAO {
 
                             vendas.add(venda);
                         } catch (ParseException e) {
-                            System.out.println("Não foi possível converter a hora corretamente!");
+                            System.out.println("Não foi possível converter o horário corretamente!");
                         }
                     }
                 }            
@@ -93,7 +93,7 @@ public class VendaDAO {
                             horaTime);
 
                         } catch (ParseException e) {
-                            System.out.println("Não foi possível converter a hora corretamente!");
+                            System.out.println("Não foi possível converter o horário corretamente!");
                         }
                     }
                 }            
@@ -102,6 +102,125 @@ public class VendaDAO {
         }
 
         return venda;
+    }
+
+    public List<Venda> buscarVendaPorValor (float valor) throws SQLException{
+        List<Venda> vendas = new ArrayList<>();
+
+        var sql = "select * from minhasvendas.venda where valor >= ?";
+
+        Venda venda;
+
+        try (var conexao = Conexao.obterConexao();
+             var stmt = conexao.prepareStatement(sql)){
+
+                stmt.setFloat(1, valor);
+
+                try (ResultSet rs = stmt.executeQuery()){
+                    while(rs.next()){
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                        Time horaTime = rs.getTime("hora");
+
+                        @SuppressWarnings("unused")
+                        Date horaData;
+                        try {
+
+                            horaData = sdf.parse(horaTime.toString());
+                            venda = new Venda(rs.getInt("id"),
+                            rs.getFloat("valor"),
+                            rs.getString("formaDePagamento"), 
+                            horaTime);
+
+                            vendas.add(venda);
+
+                        } catch (ParseException e) {
+                            System.out.println("Não foi possível converter o horário corretamente!");
+                        }
+                    } 
+                } 
+        }catch (SQLException e){
+            throw new SQLException(e);
+        }
+        return vendas;
+    }
+
+    public List<Venda> buscarVendaPorFormaDePagamento(String formaDePagamento) throws SQLException {
+        List<Venda> vendas = new ArrayList<>();
+        
+        var sql = "select * from minhasvendas.venda where formaDePagamento = ?";
+
+        Venda venda;
+
+        try (var conexao = Conexao.obterConexao();
+             var stmt = conexao.prepareStatement(sql)){
+
+            stmt.setString(1, formaDePagamento);
+
+            try (ResultSet rs = stmt.executeQuery()){
+                    while(rs.next()){
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                        Time horaTime = rs.getTime("hora");
+
+                        @SuppressWarnings("unused")
+                        Date horaData;
+                        try {
+
+                            horaData = sdf.parse(horaTime.toString());
+                            venda = new Venda(rs.getInt("id"),
+                            rs.getFloat("valor"),
+                            rs.getString("formaDePagamento"), 
+                            horaTime);
+
+                            vendas.add(venda);
+                        } catch (ParseException e) {
+                            System.out.println("Não foi possível converter o horário corretamente!");
+                        }
+                    } 
+                } 
+
+        }catch (SQLException e){
+            throw new SQLException(e);
+        }
+
+        return vendas;
+    }
+
+    public List<Venda> buscarVendaPorHorario(Time horario) throws SQLException{
+        List<Venda> vendas = new ArrayList<>();
+        var sql = "select * from minhasvendas.venda where hora = ?";
+
+        Venda venda;
+
+        try (var conexao = Conexao.obterConexao();
+             var stmt = conexao.prepareStatement(sql)){
+            stmt.setTime(1, horario);
+
+            try (ResultSet rs = stmt.executeQuery()){
+                    while(rs.next()){
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                        Time horaTime = rs.getTime("hora");
+
+                        @SuppressWarnings("unused")
+                        Date horaData;
+                        try {
+
+                            horaData = sdf.parse(horaTime.toString());
+                            venda = new Venda(rs.getInt("id"),
+                            rs.getFloat("valor"),
+                            rs.getString("formaDePagamento"), 
+                            horaTime);
+
+                            vendas.add(venda);
+                        } catch (ParseException e) {
+                            System.out.println("Não foi possível converter o horário corretamente!");
+                        }
+                    } 
+                } 
+        }catch (SQLException e){
+            throw new SQLException(e);
+        }
+
+        return vendas;
     }
 
     public void atualizar(Venda venda) throws SQLException{
