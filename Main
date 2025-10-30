@@ -52,7 +52,12 @@ public class Main {
         System.out.println("\n### Criar Nova Venda ###");
 
         System.out.println("\nValor:");
-        float valor = Float.parseFloat(console.readLine());
+        float valor = 0;
+        try {
+            valor = Float.parseFloat(console.readLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Valor digitado não é válido!");
+        } 
 
         System.out.println("\nForma de pagamento:");
         String formaDePagamento = console.readLine();
@@ -148,16 +153,27 @@ public class Main {
 
     private static void buscarVendaPorValor() {
         System.out.println("\n### Buscar Venda Por Valor ###");
-
+        
         System.out.println("\nValor:");
-        float valor = Float.parseFloat(console.readLine());
+        float valor = 0;
+        try {
+            valor = Float.parseFloat(console.readLine());
+        }catch (NumberFormatException e){
+            System.out.println("Valor digitado não é válido!");
+        }
 
         System.out.println("Valor informado: " + valor);
+
+        System.out.println("\nOperações disponíveis: >, >=, =, <, <=");
+        String operacao = console.readLine();
+
+        System.out.println("Operação informada: " + operacao + "\n");
+
 
         VendaDAO vendaDAO = new VendaDAO();
 
         try {
-            List<Venda> vendasEncontradas = vendaDAO.buscarVendaPorValor(valor);
+            List<Venda> vendasEncontradas = vendaDAO.buscarVendaPorValor(valor, operacao);
 
             if (vendasEncontradas != null)
             {
