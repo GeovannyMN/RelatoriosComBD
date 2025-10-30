@@ -104,10 +104,13 @@ public class VendaDAO {
         return venda;
     }
 
-    public List<Venda> buscarVendaPorValor (float valor) throws SQLException{
+    public List<Venda> buscarVendaPorValor (float valor, String meio) throws SQLException{
         List<Venda> vendas = new ArrayList<>();
 
-        var sql = "select * from minhasvendas.venda where valor >= ?";
+        var inicio = "select * from minhasvendas.venda where valor ";
+        var fim = " ?";
+
+        var sql = inicio + meio + fim;
 
         Venda venda;
 
